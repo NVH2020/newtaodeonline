@@ -2,8 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { DANHGIA_URL, ADMIN_CONFIG, OTHER_APPS, DEFAULT_API_URL } from '../config';
 import { AppUser, Student } from '../types';
-import { GoogleGenAI, Type } from "@google/genai";
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Type } from "@google/generative-ai";
+
 
 // 1. Cách lấy Key trong Vite (Thầy phải đặt trong file .env là VITE_GEMINI_KEY)
 const API_KEY = import.meta.env.VITE_GEMINI_KEY; 

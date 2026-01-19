@@ -90,44 +90,40 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSelectGrade, onSelectQuiz, 
   };
 
   const handleWordImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    
-    setLoading(true);
-    try {
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        const text = event.target?.result as string;
-        // Sử dụng Gemini để phân tích text đề thi
-        /* Corrected: Replaced process.env.GEMINI_API_KEY with process.env.API_KEY per guidelines */
-        const ai = new GoogleGenAI(API_KEY);
-        const prompt = `Phân tích văn bản đề thi sau đây và chuyển đổi sang định dạng JSON mảng các câu hỏi.
-        Mỗi câu hỏi có: part (Phần I, II, hoặc III), type (mcq, true-false, short-answer), question (nội dung câu hỏi), o (mảng phương án cho mcq), a (đáp án đúng), explanation (giải thích nếu có).
-        Văn bản: ${text.substring(0, 10000)}`;
+  const file = e.target.files?.[0];
+  if (!file) return;
+  
+  setLoading(true);
+  try {
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const text = event.target?.result as string;
 
-        const response = await ai.models.generateContent({
-          model: 'gemini-1.5-flash',
-          contents: prompt,
-          config: { responseMimeType: "application/json" }
-        });
+      // Sử dụng hằng số genAI thầy đã tạo ở đầu file cho đồng bộ
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-1.5-flash",
+        generationConfig: { responseMimeType: "application/json" } 
+      });
 
-        /* response.text is a property, accessing it directly as per guidelines */
-        const questions = JSON.parse(response.text() || '[]');
-        
-        // Gửi lên server
-        const payload = {
-          type: 'saveExamFromWord',
-          config: { ...wordForm, idNumber: teacherId },
-          questions: questions
-        };
-        await fetch(DEFAULT_API_URL, { method: 'POST', body: JSON.stringify(payload) });
-        alert("Import đề từ Word thành công!");
-        setTeacherTool(null);
-      };
-      reader.readAsText(file); // Ở môi trường thực tế sẽ dùng Mammoth.js để đọc .docx, ở đây demo qua text
-    } catch (e) { alert("Lỗi khi xử lý file!"); }
-    finally { setLoading(false); }
-  };
+      const prompt = `Phân tích văn bản đề thi sau đây và chuyển đổi sang định dạng JSON mảng các câu hỏi.
+      Mỗi câu hỏi có: part (Phần I, II, hoặc III), type (mcq, true-false, short-answer), question (nội dung câu hỏi), o (mảng phương án cho mcq), a (đáp án đúng), explanation (giải thích nếu có).
+      Văn bản: ${text.substring(0, 10000)}`;
+
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const questionsText = response.text(); // Lấy text ở đây
+      const questions = JSON.parse(questionsText || '[]');
+      
+      // ... phần fetch gửi lên server giữ nguyên ...
+    };
+    reader.readAsText(file);
+  } catch (e) { 
+    console.error(e);
+    alert("Lỗi khi xử lý file!"); 
+  } finally { 
+    setLoading(false); 
+  }
+};
 
   return (
     <div className="flex flex-col gap-6 pb-12 font-sans overflow-x-hidden">

@@ -100,19 +100,19 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSelectGrade, onSelectQuiz, 
         const text = event.target?.result as string;
         // Sử dụng Gemini để phân tích text đề thi
         /* Corrected: Replaced process.env.GEMINI_API_KEY with process.env.API_KEY per guidelines */
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        const ai = new GoogleGenAI(API_KEY);
         const prompt = `Phân tích văn bản đề thi sau đây và chuyển đổi sang định dạng JSON mảng các câu hỏi.
         Mỗi câu hỏi có: part (Phần I, II, hoặc III), type (mcq, true-false, short-answer), question (nội dung câu hỏi), o (mảng phương án cho mcq), a (đáp án đúng), explanation (giải thích nếu có).
         Văn bản: ${text.substring(0, 10000)}`;
 
         const response = await ai.models.generateContent({
-          model: 'gemini-3-flash-preview',
+          model: 'gemini-1.5-flash',
           contents: prompt,
           config: { responseMimeType: "application/json" }
         });
 
         /* response.text is a property, accessing it directly as per guidelines */
-        const questions = JSON.parse(response.text || '[]');
+        const questions = JSON.parse(response.text() || '[]');
         
         // Gửi lên server
         const payload = {

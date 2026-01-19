@@ -1,0 +1,7 @@
+{
+  "name": "Hệ thống học tập và kiểm tra Online",
+  "description": "Ứng dụng thi trực tuyến đa năng với ngân hàng câu hỏi thông minh, hỗ trợ nhiều định dạng trắc nghiệm và quản lý học sinh qua Google Sheets.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

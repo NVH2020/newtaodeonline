@@ -3,6 +3,25 @@ import React, { useState, useEffect } from 'react';
 import { DANHGIA_URL, ADMIN_CONFIG, OTHER_APPS, DEFAULT_API_URL } from '../config';
 import { AppUser, Student } from '../types';
 import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
+
+// 1. Cách lấy Key trong Vite (Thầy phải đặt trong file .env là VITE_GEMINI_KEY)
+const API_KEY = import.meta.env.VITE_GEMINI_KEY; 
+const genAI = new GoogleGenAI(API_KEY);
+
+export async function askGemini(prompt) {
+  try {
+    // 2. Dùng model 1.5-flash cho nhanh và miễn phí
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    return response.text();
+  } catch (error) {
+    console.error("Lỗi gọi Gemini:", error);
+    return "Có lỗi xảy ra khi gọi AI!";
+  }
+}
 
 interface LandingPageProps {
   onSelectGrade: (grade: number) => void;
